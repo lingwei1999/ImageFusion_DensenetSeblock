@@ -31,7 +31,6 @@ class Fuse:
         params = torch.load(model_path, map_location='cpu')
 
         self.net = Model()
-        # self.net = DenseFuse_net()
 
 
         self.net.load_state_dict(params['net'])
@@ -47,12 +46,6 @@ class Fuse:
         :param vi_folder: visible image folder
         :param dst: fusion image output folder
         """
-
-        # encoder_params = sum(p.numel() for p in self.encoder.parameters())
-        # decoder_params = sum(p.numel() for p in self.decoder.parameters())
-        # print('encoder params: ', encoder_params)
-        # print('decoder params: ', decoder_params)
-        # print('total params:   ', decoder_params + encoder_params)
 
         para = sum([np.prod(list(p.size())) for p in self.net.parameters()])
         print('Model params: {:}'.format(para))
@@ -119,7 +112,6 @@ class Fuse:
         YCrCb_cv = cv2.cvtColor(bgr_cv, cv2.COLOR_BGR2YCR_CB)
         vi_cv, Cr_cv, Cb_cv =  cv2.split(YCrCb_cv)
         
-        # im_cv = cv2.resize(im_cv, (640,480))
         ir_ts = kornia.utils.image_to_tensor(ir_cv / 255.0).type(torch.FloatTensor)
         vi_ts = kornia.utils.image_to_tensor(vi_cv / 255.0).type(torch.FloatTensor)
         return ir_ts, vi_ts, Cr_cv, Cb_cv
@@ -138,12 +130,7 @@ class Fuse:
 
 
 if __name__ == '__main__':
-
     model = 'densenet'
     f = Fuse(f"./cache/{model}/best.pth")
-    # f('data/mini_LLVIP/infrared', 'data/mini_LLVIP/visible', f'runs/mini_LLVIP/{model}')
-    # f('../datasets/Multi_spectral/infrared_list', '../datasets/Multi_spectral/visible_list', f'runs/Multi_spectral/list/{model}_RGB')
-    f('../datasets/Multi_spectral/infrared/test', '../datasets/Multi_spectral/visible/test', f'runs/Multi_spectral/test/{model}_RGB')
-    # f('data/TNO/Nato/thermal', 'data/TNO/Nato/visual', f'runs/TNO/Nato/RGB_{model}')
-    # f('data/test/ir', 'data/test/vi', f'runs/test/RGB_{model}')
-    # f('../datasets/LLVIP640/infrared/test', '../datasets/LLVIP640/visible/test', f'runs/LLVIP640/test/RGB_{model}')
+
+    f('../datasets/test/ir', '../datasets/test/vi', f'runs/test/{model}')
