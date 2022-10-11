@@ -48,12 +48,6 @@ class Fuse:
         :param dst: fusion image output folder
         """
 
-        # encoder_params = sum(p.numel() for p in self.encoder.parameters())
-        # decoder_params = sum(p.numel() for p in self.decoder.parameters())
-        # print('encoder params: ', encoder_params)
-        # print('decoder params: ', decoder_params)
-        # print('total params:   ', decoder_params + encoder_params)
-
         para = sum([np.prod(list(p.size())) for p in self.net.parameters()])
         print('Model params: {:}'.format(para))
 
@@ -115,7 +109,6 @@ class Fuse:
         height, width = ir_cv.shape[:2]
         vi_cv = cv2.resize(vi_cv, (width, height))
 
-        # im_cv = cv2.resize(im_cv, (640,480))
         ir_ts = kornia.utils.image_to_tensor(ir_cv / 255.0).type(torch.FloatTensor)
         vi_ts = kornia.utils.image_to_tensor(vi_cv / 255.0).type(torch.FloatTensor)
         return ir_ts, vi_ts
@@ -128,22 +121,9 @@ class Fuse:
         cv2.imwrite(str(path), im_cv)
 
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     model = 'densenet'
     f = Fuse(f"./cache/{model}/best.pth")
-    # f('data/TNO/Nato/thermal', 'data/TNO/Nato/visual', f'runs/TNO/Nato/{model}')
-    # f('data/TNO/Tree/thermal', 'data/TNO/Tree/visual', f'runs/TNO/Tree/{model}')
-    # f('data/TNO/Duine/thermal', 'data/TNO/Duine/visual', f'runs/TNO/Duine/{model}')
-    # f('data/TNO/Triclobs/thermal', 'data/TNO/Triclobs/visual', f'runs/TNO/Triclobs/{model}')
-    
-    # f('../datasets/Multi_spectral/infrared/val', '../datasets/Multi_spectral/visible/val', f'runs/Multi_spectral/val/{model}')
-    # f('../datasets/Multi_spectral/infrared/test', '../datasets/Multi_spectral/visible/test', f'runs/Multi_spectral/test/{model}')
-    # f('../datasets/Multi_spectral/infrared_list', '../datasets/Multi_spectral/visible_list', f'runs/Multi_spectral/list/{model}')
-    # f('../datasets/Multi_spectral/infrared/train', '../datasets/Multi_spectral/visible/train', f'runs/Multi_spectral/train/{model}')
-    
-    # f('../datasets/M3FD/M3FD_Fusion/Ir', '../datasets/M3FD/M3FD_Fusion/Vis', f'runs/M3FD/M3FD_Fusion/{model}')
 
     f('../datasets/test/ir', '../datasets/test/vi', f'runs/test/{model}')
-    # f('../datasets/LLVIP640/infrared/test', '../datasets/LLVIP640/visible/test', f'runs/LLVIP640/test/{model}')
-    # f('data/clips6/ir', 'data/clips6/vi', f'runs/clips6/{model}')

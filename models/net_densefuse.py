@@ -3,9 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from functions.feather_fuse import FeatherFuse
-# import fusion_strategy
-
 
 # Convolution operation
 class ConvLayer(torch.nn.Module):
