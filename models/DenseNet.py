@@ -16,6 +16,7 @@ class ConvLayer(torch.nn.Module):
         if self.is_last is False:
             out = F.relu(out, inplace=True)
         return out
+        
 # Dense convolution unit
 class DenseConv2d(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride):
@@ -44,10 +45,10 @@ class DenseBlock(torch.nn.Module):
         return out
 
 
-#  DenseFuse network
-class DenseFuse_net(nn.Module):
+#  DenseNet network
+class DenseNet(nn.Module):
     def __init__(self, input_nc=1, output_nc=1):
-        super(DenseFuse_net, self).__init__()
+        super(DenseNet, self).__init__()
         denseblock = DenseBlock
         nb_filter = [16, 64, 32, 16]
         kernel_size = 3
@@ -62,7 +63,7 @@ class DenseFuse_net(nn.Module):
         self.conv2 = ConvLayer(nb_filter[1], nb_filter[1], kernel_size, stride)
         self.conv3 = ConvLayer(nb_filter[1], nb_filter[2], kernel_size, stride)
         self.conv4 = ConvLayer(nb_filter[2], nb_filter[3], kernel_size, stride)
-        self.conv5 = ConvLayer(nb_filter[3], output_nc, kernel_size, stride)
+        self.conv5 = ConvLayer(nb_filter[3], output_nc, kernel_size, stride, is_last = True)
 
     def forward(self, ir, vi):
         ir_en = self.conv1(ir)

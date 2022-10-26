@@ -10,9 +10,8 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import numpy as np
 
-# from models.Unet import UNet as Model
-# from models.Unet import UNet_lite as Model
-from models.net_densefuse import DenseFuse_net as Model
+# from models.DenseNet import DenseNet as Model
+from models.DenseNet_half import DenseNet_half as Model
 
 class Fuse:
     """
@@ -31,8 +30,6 @@ class Fuse:
         params = torch.load(model_path, map_location='cpu')
 
         self.net = Model()
-        # self.net = DenseFuse_net()
-
 
         self.net.load_state_dict(params['net'])
 
@@ -123,7 +120,7 @@ class Fuse:
 
 
 if __name__ == '__main__':
-    model = 'densenet'
+    model = 'densenet_half'
     f = Fuse(f"./cache/{model}/best.pth")
 
     f('../datasets/test/ir', '../datasets/test/vi', f'runs/test/{model}')

@@ -15,9 +15,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-from functions.div_loss import div_loss
-# from models.Unet import UNet
-from models.net_densefuse import DenseFuse_net
+from models.DenseNet_half import DenseNet_half
 
 from utils.environment_probe import EnvironmentProbe
 from utils.fusion_data import FusionData
@@ -54,16 +52,13 @@ class Train:
         self.environment_probe = environment_probe
 
         # modules
-        # self.net = UNet()
-        self.net = DenseFuse_net()
+        self.net = DenseNet_half()
         para = sum([np.prod(list(p.size())) for p in self.net.parameters()])
         logging.info('Model params: {:}'.format(para))
 
         # WGAN adam optim
-        logging.info(f'RMSprop | learning rate: {config.learning_rate}')
-        self.opt_net = RMSprop(self.net.parameters(), lr=config.learning_rate)
-
-
+        logging.info(f'Adam | learning rate: {config.learning_rate}')
+        self.opt_net = Adam(self.net.parameters(), lr=config.learning_rate)
 
         # move to device
         logging.info(f'module device: {environment_probe.device}')
@@ -72,8 +67,10 @@ class Train:
 
         # loss
         
-        self.L1Loss = torch.nn.L1Loss()
+        self.L1Loss = torch.nn.L1Loss(reduction='none')
         self.L1Loss.cuda()
+        self.SSIM = SSIMLoss(window_size=11, reduction='none')
+        self.SSIM.cuda()
         self.sobelconv = Sobelxy()
 
         # datasets
@@ -88,47 +85,6 @@ class Train:
         logging.info(f'dataset | folder: {str(folder)} | train size: {len(self.train_dataloader) * config.batch_size}')
         logging.info(f'dataset | folder: {str(folder)} |   val size: {len(self.eval_dataloader) * config.batch_size}')
 
-    def int_loss(self, inputs, fusion):
-        assert 0
-
-
-
-    def train_discriminator(self, input: Tensor) -> Tensor:
-        """
-        Train discriminator
-        """
-
-        logging.debug('train discriminator')
-        # switch to train mode
-        self.discriminator.train()
-
-        # sample real & fake
-        real_s = input
-        self.net_ext.eval()
-        self.net_con.eval()
-        self.net_att.eval()
-
-        input_1, input_b_1, input_b_2 = self.net_ext(input)
-        input_att = self.net_att(input)
-        fus_1 = input_1 * input_att
-        fake_s = self.net_con(fus_1, input_b_1, input_b_2)
-
-        # judge value towards real & fake
-        real_v = torch.squeeze(self.discriminator(real_s))
-        fake_v = torch.squeeze(self.discriminator(fake_s))
-
-        # loss calculate
-        real_l, fake_l = -real_v.mean(), fake_v.mean()
-
-        loss = real_l + fake_l
-
-
-        # backwardD
-        self.opt_discriminator.zero_grad()
-        loss.backward()
-        self.opt_discriminator.step()
-
-        return loss.item()
 
     def train_generator(self, ir, vi) -> dict:
         """
@@ -143,14 +99,16 @@ class Train:
         fusion = self.net(ir, vi)
 
         # calculate loss towards criterion
-        l_int = self.L1Loss(fusion, torch.max(ir, vi))
+        l_int = (20*self.L1Loss(fusion, vi) + self.SSIM(fusion, vi))*0.5 + (20*self.L1Loss(fusion, ir) + self.SSIM(fusion, ir))*0.5
+
+        l_int = l_int.mean()
         
         vi_grad=self.sobelconv(vi)
         ir_grad=self.sobelconv(ir)
         fusion_grad=self.sobelconv(fusion)
 
-        l_grad = self.L1Loss(fusion_grad, torch.max(ir_grad, vi_grad))
-        loss = l_int + 10*l_grad
+        l_grad = self.L1Loss(fusion_grad, torch.max(ir_grad, vi_grad)).mean()
+        loss = l_int + 20*l_grad
 
         # backwardG
         self.opt_net.zero_grad()
@@ -160,7 +118,7 @@ class Train:
         state = {
             'g_loss': loss.item(),
             'g_l_int': l_int.item(),
-            'g_l_grad': l_grad.item()*10,
+            'g_l_grad': l_grad.item()*20,
         }
         return state
 
@@ -175,14 +133,16 @@ class Train:
 
         fusion = self.net(ir, vi)
 
-        l_int = self.L1Loss(fusion, torch.max(ir, vi))
+        l_int = (20*self.L1Loss(fusion, vi) + self.SSIM(fusion, vi))*0.5 + (20*self.L1Loss(fusion, ir) + self.SSIM(fusion, ir))*0.5
+
+        l_int = l_int.mean()
         
         vi_grad=self.sobelconv(vi)
         ir_grad=self.sobelconv(ir)
         fusion_grad=self.sobelconv(fusion)
 
-        l_grad = self.L1Loss(fusion_grad, torch.max(ir_grad, vi_grad))
-        loss = l_int + 10*l_grad
+        l_grad = self.L1Loss(fusion_grad, torch.max(ir_grad, vi_grad)).mean()
+        loss = l_int + 20*l_grad
 
         return loss.item()
 
