@@ -1,7 +1,7 @@
 import pathlib
 import statistics
 import time
-
+import argparse
 import cv2
 import kornia
 import torch
@@ -10,9 +10,8 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import numpy as np
 
-# from models.Unet import UNet as Model
-# from models.Unet import UNet_lite as Model
-from models.net_densefuse import DenseFuse_net as Model
+# from models.DenseNet import DenseNet as Model
+from models.DenseNet_add import DenseNet_half as Model
 
 class Fuse:
     """
@@ -31,7 +30,6 @@ class Fuse:
         params = torch.load(model_path, map_location='cpu')
 
         self.net = Model()
-
 
         self.net.load_state_dict(params['net'])
 
@@ -130,7 +128,12 @@ class Fuse:
 
 
 if __name__ == '__main__':
-    model = 'densenet'
+    model = 'densenet_add_half'
     f = Fuse(f"./cache/{model}/best.pth")
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ir", default='../datasets/test/ir', help="IR path")
+    parser.add_argument("--vi", default='../datasets/test/vi', help="VI path")
+    args = parser.parse_args()
 
-    f('../datasets/test/ir', '../datasets/test/vi', f'runs/test/{model}')
+    f(args.ir, args.vi, f'runs/test/{model}_RGB')
