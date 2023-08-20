@@ -6,9 +6,6 @@ import logging
 import torch
 from argparse import Namespace
 
-# import wandb
-
-# from pipeline.train_SeAFusion import Train
 from pipeline.train import Train
 
 
@@ -24,8 +21,8 @@ def parse_args() -> Namespace:
     parser.add_argument('--folder', default='../datasets/LLVIP', help='data root path')
     parser.add_argument('--size', default=256, help='resize image to the specified size')
     parser.add_argument('--cache', default='cache', help='weights cache folder')
-    # parser.add_argument('--load', type=str, default='./cache/default_maxWeightGT/best.pth', help='epoch to train')
     parser.add_argument('--load', type=str, default=None, help='epoch to train')
+    # parser.add_argument('--load', type=str, default='./cache/default_maxWeightGT/best.pth', help='epoch to train')
 
     # checkpoint opt
     parser.add_argument('--epochs', type=int, default=8, help='epoch to train')
