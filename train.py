@@ -8,9 +8,9 @@ from argparse import Namespace
 
 # import wandb
 
-# from pipeline.train_Unet import Train
-from pipeline.train_densenet import Train
-# from pipeline.train_Unet import Train
+# from pipeline.train_SeAFusion import Train
+from pipeline.train import Train
+
 
 from utils.environment_probe import EnvironmentProbe
 
@@ -20,15 +20,17 @@ def parse_args() -> Namespace:
     parser = argparse.ArgumentParser()
 
     # universal opt
-    parser.add_argument('--id', default='densenet_half', help='train process identifier')
+    parser.add_argument('--id', default='test', help='train process identifier')
     parser.add_argument('--folder', default='../datasets/LLVIP', help='data root path')
     parser.add_argument('--size', default=256, help='resize image to the specified size')
     parser.add_argument('--cache', default='cache', help='weights cache folder')
+    # parser.add_argument('--load', type=str, default='./cache/default_maxWeightGT/best.pth', help='epoch to train')
+    parser.add_argument('--load', type=str, default=None, help='epoch to train')
 
     # checkpoint opt
-    parser.add_argument('--epochs', type=int, default=4, help='epoch to train')
+    parser.add_argument('--epochs', type=int, default=8, help='epoch to train')
     # optimizer opt
-    parser.add_argument('--learning_rate', type=float, default=1e-4, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=1e-3, help='learning rate')
     # dataloader opt
     parser.add_argument('--batch_size', type=int, default=16, help='dataloader batch size')
     parser.add_argument('--num_workers', type=int, default=8, help='dataloader workers number')
