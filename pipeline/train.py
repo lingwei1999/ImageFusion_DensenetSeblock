@@ -110,7 +110,7 @@ class Train:
         # datasets
         folder = Path(config.folder)
         resize = transforms.Resize((config.size, config.size))
-        train_dataset = TrainData(folder, mode='train', transforms=resize)
+        train_dataset = FusionData(folder, mode='train', transforms=resize)
         self.train_dataloader = DataLoader(
             train_dataset, config.batch_size, True, num_workers=config.num_workers, pin_memory=True)
 
