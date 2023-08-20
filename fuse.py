@@ -160,7 +160,7 @@ class Fuse:
 
 
 if __name__ == '__main__':
-    model = 'default_maxWeightGT'
+    model = 'default'
     f = Fuse(f"./cache/{model}/best.pth")
 
     parser = argparse.ArgumentParser()
