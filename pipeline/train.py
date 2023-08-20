@@ -21,7 +21,7 @@ from tqdm import tqdm
 from models.DenseNet_Seblock import DenseNet as model
 from models.Perceptual_net import Perceptual_net
 from utils.environment_probe import EnvironmentProbe
-from utils.fusion_data_msf import TrainData, ValData
+from utils.fusion_data_msf import FusionData
 
 class MeanConv(nn.Module):
     def __init__(self, size=3):
@@ -114,7 +114,7 @@ class Train:
         self.train_dataloader = DataLoader(
             train_dataset, config.batch_size, True, num_workers=config.num_workers, pin_memory=True)
 
-        eval_dataset = ValData(folder, mode='val', transforms=resize)
+        eval_dataset = FusionData(folder, mode='val', transforms=resize)
         self.eval_dataloader = DataLoader(
             eval_dataset, config.batch_size, False, num_workers=config.num_workers, pin_memory=True)
 

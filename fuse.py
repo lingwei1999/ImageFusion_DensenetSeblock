@@ -13,8 +13,6 @@ from tqdm import tqdm
 import numpy as np
 import os
 
-# from models.FusionNet import FusionNet as Model
-# from models.DenseNet import DenseNet as Model
 from models.DenseNet_Seblock import DenseNet as Model
 
 
